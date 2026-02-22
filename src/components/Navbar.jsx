@@ -229,7 +229,7 @@ function Navbar() {
           <div style={styles.userSection}>
             {user.profile_photo && (
               <img
-                src={`http://localhost:8000${user.profile_photo}`}
+src={user.profile_photo}
                 alt="profile"
                 style={styles.avatar}
               />

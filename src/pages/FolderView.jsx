@@ -33,12 +33,20 @@ function FolderView() {
         const filesRes = await api.get(`files/`, {
           params: { folder: id, password: password || "" }
         });
-        setFiles(filesRes.data);
+        setFiles(
+  Array.isArray(filesRes.data)
+    ? filesRes.data
+    : filesRes.data.results || []
+);
 
         const subRes = await api.get(`folders/`, {
           params: { parent: id, password: password || "" }
         });
-        setSubfolders(subRes.data);
+        setSubfolders(
+  Array.isArray(subRes.data)
+    ? subRes.data
+    : subRes.data.results || []
+);
 
       } catch (error) {
         if (error.response?.status === 403) {

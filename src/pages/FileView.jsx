@@ -13,10 +13,11 @@ function FileView() {
   }, [id]);
 
   if (!file) return <p>Loading...</p>;
+const API_BASE = import.meta.env.VITE_API_BASE_URL.replace("/api/", "");
+const fileUrl = `${API_BASE}${file.file}`;
+const extension = file.file.split(".").pop().toLowerCase();
 
-const fileUrl = `http://localhost:8000${file.file}`;
   console.log(fileUrl)
-  const extension = file.file.split(".").pop().toLowerCase();
 
   const imageTypes = ["jpg", "jpeg", "png", "gif", "webp", "svg"];
   const videoTypes = ["mp4", "webm", "ogg"];

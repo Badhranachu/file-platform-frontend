@@ -1,256 +1,195 @@
-import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+﻿import { useContext, useEffect, useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import api from "../api/axios";
+import { AuthContext } from "../context/AuthContext";
+import { useDialog } from "../context/DialogContext";
+import "./Navbar.css";
 
 function Navbar() {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
+  const { user, logout } = useContext(AuthContext);
+  const dialog = useDialog();
+
   const [searchTerm, setSearchTerm] = useState("");
   const [suggestions, setSuggestions] = useState([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [folderCount, setFolderCount] = useState(0);
+  const [likedCount, setLikedCount] = useState(0);
+  const [menuOpen, setMenuOpen] = useState(false);
 
-  const token = localStorage.getItem("access");
+  const isLoggedIn = useMemo(
+    () => !!sessionStorage.getItem("access") && !!user,
+    [user]
+  );
 
-  // 🔎 Search debounce
   useEffect(() => {
     if (!searchTerm.trim()) {
       setSuggestions([]);
       return;
     }
 
-    const delay = setTimeout(() => {
-      api.get(`folders/?search=${searchTerm}`)
-        .then(res => {
-          setSuggestions(res.data);
-          setShowSuggestions(true);
-        })
-        .catch(() => setSuggestions([]));
+    const timeoutId = setTimeout(async () => {
+      try {
+        const res = await api.get(`folders/?search=${encodeURIComponent(searchTerm)}`);
+        setSuggestions(Array.isArray(res.data) ? res.data : []);
+      } catch {
+        setSuggestions([]);
+      }
     }, 300);
 
-    return () => clearTimeout(delay);
+    return () => clearTimeout(timeoutId);
   }, [searchTerm]);
 
-  // 👤 Load user
   useEffect(() => {
-    if (token) {
-      api.get("accounts/profile/")
-        .then(res => setUser(res.data))
-        .catch(() => setUser(null));
+    if (!isLoggedIn) {
+      setFolderCount(0);
+      setLikedCount(0);
+      return;
     }
-  }, [token]);
 
-  const handleLogout = () => {
-    localStorage.removeItem("access");
-    localStorage.removeItem("refresh");
-    setUser(null);
-    navigate("/login");
+    const loadCounts = async () => {
+      try {
+        const [mineRes, likedRes] = await Promise.all([
+          api.get("folders/my_folders/"),
+          api.get("folders/liked/"),
+        ]);
+        setFolderCount(Array.isArray(mineRes.data) ? mineRes.data.length : 0);
+        setLikedCount(Array.isArray(likedRes.data) ? likedRes.data.length : 0);
+      } catch {
+        setFolderCount(0);
+        setLikedCount(0);
+      }
+    };
+
+    loadCounts();
+  }, [isLoggedIn]);
+
+  const handleSuggestionClick = async (folder) => {
+    setSearchTerm("");
+    setSuggestions([]);
+    setMenuOpen(false);
+
+    if (folder.is_public) {
+      navigate(`/folder/${folder.id}`);
+      return;
+    }
+
+    const password = await dialog.prompt("Enter folder password:", {
+      title: "Private Folder",
+      placeholder: "Password",
+      confirmText: "Open",
+    });
+    if (!password) return;
+
+    try {
+      await api.get(`folders/${folder.id}/`, { params: { password } });
+      navigate(`/folder/${folder.id}?password=${encodeURIComponent(password)}`);
+    } catch {
+      await dialog.alert("Wrong password. Please try again.", { title: "Access Denied" });
+    }
   };
 
-  const styles = {
-  navbar: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: "12px 20px",
-    background: "#111827",
-    color: "white",
-    position: "relative",
-    flexWrap: "wrap"
-  },
-
-  logo: {
-    fontSize: "20px",
-    fontWeight: "bold",
-    cursor: "pointer"
-  },
-
-  mobileToggle: {
-    display: "none",
-    fontSize: "22px",
-    cursor: "pointer"
-  },
-
-  rightSection: {
-    display: "flex",
-    alignItems: "center",
-    gap: "15px"
-  },
-
-  mobileOpen: {
-    display: "flex",
-    flexDirection: "column",
-    width: "100%",
-    marginTop: "10px"
-  },
-
-  searchWrapper: {
-    position: "relative"
-  },
-
-  searchInput: {
-    padding: "8px 12px",
-    borderRadius: "6px",
-    border: "none",
-    outline: "none",
-    width: "220px"
-  },
-
-  suggestionBox: {
-    position: "absolute",
-    top: "42px",
-    left: 0,
-    width: "100%",
-    background: "white",
-    color: "black",
-    borderRadius: "6px",
-    boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
-    maxHeight: "250px",
-    overflowY: "auto",
-    zIndex: 1000
-  },
-
-  suggestionItem: {
-    padding: "10px",
-    cursor: "pointer",
-    borderBottom: "1px solid #eee"
-  },
-
-  userSection: {
-    display: "flex",
-    alignItems: "center",
-    gap: "10px"
-  },
-
-  avatar: {
-    width: "32px",
-    height: "32px",
-    borderRadius: "50%"
-  },
-
-  logoutBtn: {
-    padding: "6px 12px",
-    background: "#ef4444",
-    border: "none",
-    color: "white",
-    borderRadius: "6px",
-    cursor: "pointer"
-  },
-
-  loginBtn: {
-    padding: "6px 12px",
-    background: "#2563eb",
-    border: "none",
-    color: "white",
-    borderRadius: "6px",
-    cursor: "pointer"
-  },
-
-  registerBtn: {
-    padding: "6px 12px",
-    background: "#10b981",
-    border: "none",
-    color: "white",
-    borderRadius: "6px",
-    cursor: "pointer"
-  }
-};
-
   return (
-    <nav style={styles.navbar}>
-      {/* LEFT LOGO */}
-      <div style={styles.logo} onClick={() => navigate("/")}>
-        📁 FilePlatform
-      </div>
+    <header className="nav-shell">
+      <div className="nav-content">
+        <div className="nav-top-row">
+          <div className="nav-brand" onClick={() => navigate("/")}>Edu Drive</div>
 
-      {/* MOBILE MENU BUTTON */}
-      <div
-        style={styles.mobileToggle}
-        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-      >
-        ☰
-      </div>
+          <button
+            type="button"
+            className="nav-menu-toggle"
+            onClick={() => setMenuOpen((prev) => !prev)}
+            aria-label="Toggle menu"
+          >
+            {menuOpen ? "Close" : "Menu"}
+          </button>
+        </div>
 
-      {/* CENTER + RIGHT CONTENT */}
-      <div
-        style={{
-          ...styles.rightSection,
-          ...(mobileMenuOpen ? styles.mobileOpen : {})
-        }}
-      >
-        {/* SEARCH */}
-        <div style={styles.searchWrapper}>
-          <input
-            type="text"
-            placeholder="Search folders..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            style={styles.searchInput}
-          />
+        {isLoggedIn && (
+          <div className={`nav-search-wrap ${menuOpen ? "open" : ""}`}>
+            <input
+              className="nav-search"
+              placeholder="Search by folder name or code"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
 
-          {showSuggestions && suggestions.length > 0 && (
-            <div style={styles.suggestionBox}>
-              {suggestions.map((folder) => (
-                <div
-                  key={folder.id}
-                  style={styles.suggestionItem}
-                  onClick={async () => {
-                    setSearchTerm("");
-                    setShowSuggestions(false);
-                    setMobileMenuOpen(false);
+            {suggestions.length > 0 && (
+              <div className="nav-suggestions">
+                {suggestions.map((folder) => (
+                  <button
+                    type="button"
+                    key={folder.id}
+                    className="nav-suggestion-item"
+                    onClick={() => handleSuggestionClick(folder)}
+                  >
+                    <span>{folder.is_public ? "Public" : "Private"}</span>
+                    <span>{folder.name}</span>
+                    <span>{folder.folder_code}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
-                    if (folder.is_public) {
-                      navigate(`/folder/${folder.id}`);
-                      return;
-                    }
+        {isLoggedIn && (
+          <nav className={`nav-links ${menuOpen ? "open" : ""}`}>
+            <Link to="/" onClick={() => setMenuOpen(false)}>Feed</Link>
+            <Link to="/following" onClick={() => setMenuOpen(false)}>Following</Link>
+            <Link to="/chat" onClick={() => setMenuOpen(false)}>Chat</Link>
+            <Link to="/dashboard" onClick={() => setMenuOpen(false)}>Dashboard</Link>
+            <Link to="/liked" onClick={() => setMenuOpen(false)}>Liked</Link>
+          </nav>
+        )}
 
-                    const password = prompt("Enter folder password:");
-                    if (!password) return;
+        <div className={`nav-auth ${menuOpen ? "open" : ""}`}>
+          {!isLoggedIn && (
+            <>
+              <button type="button" onClick={() => navigate("/login")}>Login</button>
+              <button type="button" onClick={() => navigate("/register")}>Register</button>
+            </>
+          )}
 
-                    try {
-                      await api.get(`folders/${folder.id}/`, {
-                        params: { password }
-                      });
-                      navigate(`/folder/${folder.id}?password=${encodeURIComponent(password)}`);
-                    } catch {
-                      alert("Wrong password.");
-                    }
-                  }}
-                >
-                  {folder.is_public ? "📁" : "🔒"} {folder.name}
+          {isLoggedIn && (
+            <div className="nav-profile">
+              <button
+                type="button"
+                className="nav-profile-head"
+                onClick={() => {
+                  navigate(`/users/${user?.id}`);
+                  setMenuOpen(false);
+                }}
+              >
+                {user?.profile_photo ? (
+                  <img src={user.profile_photo} alt="profile" className="nav-avatar" />
+                ) : (
+                  <div className="nav-avatar nav-avatar-fallback">
+                    {(user?.username || "U").slice(0, 1).toUpperCase()}
+                  </div>
+                )}
+
+                <div className="nav-profile-meta">
+                  <strong>{user?.username}</strong>
+                  <span>Folders: {folderCount}</span>
+                  <span>Liked: {likedCount}</span>
                 </div>
-              ))}
+              </button>
+
+              <button
+                type="button"
+                className="nav-logout"
+                onClick={() => {
+                  logout();
+                  navigate("/login");
+                }}
+              >
+                Logout
+              </button>
             </div>
           )}
         </div>
-
-        {/* USER SECTION */}
-        {user ? (
-          <div style={styles.userSection}>
-            {user.profile_photo && (
-              <img
-src={user.profile_photo}
-                alt="profile"
-                style={styles.avatar}
-              />
-            )}
-            <span>{user.username}</span>
-            <button style={styles.logoutBtn} onClick={handleLogout}>
-              Logout
-            </button>
-          </div>
-        ) : (
-          <div style={styles.userSection}>
-            <button style={styles.loginBtn} onClick={() => navigate("/login")}>
-              Login
-            </button>
-            <button style={styles.registerBtn} onClick={() => navigate("/register")}>
-              Register
-            </button>
-          </div>
-        )}
       </div>
-    </nav>
+    </header>
   );
 }
 

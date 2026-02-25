@@ -1,38 +1,34 @@
-import { createContext, useState, useEffect } from "react";
+﻿import { createContext, useMemo, useState } from "react";
 import api from "../api/axios";
 
-export const AuthContext = createContext();
+export const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(
-    JSON.parse(localStorage.getItem("user") || "null")
+    JSON.parse(sessionStorage.getItem("user") || "null")
   );
 
-  const login = async (username, password) => {
-    // 1️⃣ Get tokens
-    const res = await api.post("token/", { username, password });
+  const login = async (email, password) => {
+    const tokenRes = await api.post("token/", { email, password });
 
-    localStorage.setItem("access", res.data.access);
-    localStorage.setItem("refresh", res.data.refresh);
+    sessionStorage.setItem("access", tokenRes.data.access);
+    sessionStorage.setItem("refresh", tokenRes.data.refresh);
 
-    // 2️⃣ Fetch profile
     const profileRes = await api.get("accounts/profile/");
-
-    // 3️⃣ Save user
-    localStorage.setItem("user", JSON.stringify(profileRes.data));
+    sessionStorage.setItem("user", JSON.stringify(profileRes.data));
     setUser(profileRes.data);
+
+    return profileRes.data;
   };
 
   const logout = () => {
-    localStorage.removeItem("access");
-    localStorage.removeItem("refresh");
-    localStorage.removeItem("user");
+    sessionStorage.removeItem("access");
+    sessionStorage.removeItem("refresh");
+    sessionStorage.removeItem("user");
     setUser(null);
   };
 
-  return (
-    <AuthContext.Provider value={{ user, login, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  const value = useMemo(() => ({ user, login, logout, setUser }), [user]);
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

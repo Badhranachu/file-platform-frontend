@@ -1,0 +1,145 @@
+﻿.file-page {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 30px 16px 44px;
+  animation: rise 0.8s ease;
+}
+
+.file-page h1 {
+  margin-top: 0;
+}
+
+.file-button {
+  display: inline-block;
+  margin-top: 12px;
+  border: 1px solid rgba(83, 198, 255, 0.42);
+  background: linear-gradient(130deg, rgba(17, 57, 110, 0.96), rgba(7, 104, 140, 0.94));
+  color: #eef9ff;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.file-image {
+  margin-top: 16px;
+  max-width: 100%;
+  border-radius: 14px;
+  border: 1px solid rgba(83, 198, 255, 0.24);
+  box-shadow: 0 14px 34px rgba(1, 5, 20, 0.58);
+}
+
+.file-media {
+  margin-top: 16px;
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid rgba(83, 198, 255, 0.2);
+}
+
+.inline-link {
+  border: 0;
+  background: transparent;
+  color: #72f8d4;
+  cursor: pointer;
+}
+
+.file-comments {
+  margin-top: 20px;
+  background: rgba(11, 21, 46, 0.78);
+  border: 1px solid rgba(83, 198, 255, 0.28);
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.file-nav-controls {
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.file-nav-btn {
+  border: 1px solid rgba(83, 198, 255, 0.42);
+  border-radius: 10px;
+  padding: 8px 12px;
+  background: rgba(8, 16, 37, 0.8);
+  color: #e8f3ff;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.file-nav-index {
+  color: #9ec7ee;
+  font-size: 13px;
+}
+
+.file-comments-form {
+  display: grid;
+  gap: 8px;
+}
+
+.file-comments-form textarea {
+  border: 1px solid rgba(83, 198, 255, 0.26);
+  border-radius: 10px;
+  padding: 10px;
+  font: inherit;
+  background: rgba(7, 15, 35, 0.7);
+  color: #e8f3ff;
+  min-height: 80px;
+}
+
+.file-comments-form button {
+  border: 1px solid rgba(83, 198, 255, 0.42);
+  border-radius: 10px;
+  padding: 8px 10px;
+  background: linear-gradient(130deg, rgba(17, 57, 110, 0.96), rgba(7, 104, 140, 0.94));
+  color: #fff;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.file-comments-list {
+  margin-top: 10px;
+  display: grid;
+  gap: 8px;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.file-comment-item {
+  border: 1px solid rgba(83, 198, 255, 0.2);
+  border-radius: 10px;
+  padding: 8px;
+  background: rgba(8, 16, 37, 0.5);
+}
+
+.file-comment-item p {
+  margin: 4px 0 0;
+}
+
+@media (max-width: 700px) {
+  .file-page {
+    padding: 20px 12px 30px;
+  }
+
+  .file-button {
+    width: 100%;
+    text-align: center;
+  }
+
+  .file-nav-controls {
+    flex-wrap: wrap;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

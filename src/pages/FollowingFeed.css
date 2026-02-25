@@ -1,0 +1,80 @@
+﻿.following-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 26px 12px 40px;
+}
+
+.following-status {
+  color: #9ed9ff;
+}
+
+.following-list {
+  display: grid;
+  gap: 12px;
+}
+
+.following-post {
+  background: rgba(11, 21, 46, 0.74);
+  border: 1px solid rgba(83, 198, 255, 0.25);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.following-post header,
+.following-post footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+}
+
+.following-post header button,
+.following-post footer button {
+  border: 1px solid rgba(83, 198, 255, 0.35);
+  background: rgba(16, 45, 101, 0.65);
+  color: #dff8ff;
+  border-radius: 8px;
+  padding: 6px 8px;
+  cursor: pointer;
+}
+
+.following-post header span {
+  font-family: "Courier New", monospace;
+  color: #9abce9;
+  font-size: 12px;
+}
+
+.following-body {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  padding: 12px;
+  color: inherit;
+  cursor: pointer;
+}
+
+.following-body h3 {
+  margin: 0 0 6px;
+}
+
+.following-body p {
+  margin: 0;
+}
+
+.following-post footer div {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  color: #9eb7dd;
+  font-size: 13px;
+}
+
+@media (max-width: 640px) {
+  .following-post header,
+  .following-post footer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

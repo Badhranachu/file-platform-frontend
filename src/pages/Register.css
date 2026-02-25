@@ -1,23 +1,12 @@
-﻿.login-page {
+﻿.register-page {
   min-height: calc(100vh - 80px);
   display: grid;
   place-items: center;
-  padding: 26px;
-  position: relative;
+  padding: 24px;
 }
 
-.login-page::before {
-  content: "";
-  position: absolute;
-  inset: 8% 12% auto 12%;
-  height: 220px;
-  background: radial-gradient(circle, rgba(53, 208, 255, 0.24), transparent 70%);
-  filter: blur(35px);
-  pointer-events: none;
-}
-
-.login-card {
-  width: min(440px, 100%);
+.register-form {
+  width: min(450px, 100%);
   background: rgba(11, 21, 46, 0.78);
   border: 1px solid rgba(83, 198, 255, 0.3);
   border-radius: 18px;
@@ -25,15 +14,14 @@
   display: grid;
   gap: 12px;
   box-shadow: 0 18px 40px rgba(1, 5, 20, 0.62);
-  backdrop-filter: blur(14px);
   animation: authPop 0.7s ease;
 }
 
-.login-card h2 {
+.register-form h2 {
   margin: 0 0 4px;
 }
 
-.login-card input {
+.register-form input {
   border: 1px solid rgba(83, 198, 255, 0.32);
   border-radius: 12px;
   padding: 11px;
@@ -42,17 +30,33 @@
   color: #e8f3ff;
 }
 
-.login-card input::placeholder {
+.register-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.register-suggestions button {
+  border: 1px solid rgba(83, 198, 255, 0.38);
+  background: rgba(13, 23, 51, 0.75);
+  color: #bfe9ff;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.register-form input::placeholder {
   color: #86a3cd;
 }
 
-.login-card input:focus {
+.register-form input:focus {
   outline: none;
   border-color: #35d0ff;
   box-shadow: 0 0 0 3px rgba(53, 208, 255, 0.16);
 }
 
-.login-card button {
+.register-form button {
   border: 1px solid rgba(83, 198, 255, 0.42);
   border-radius: 12px;
   padding: 11px;
@@ -62,17 +66,17 @@
   cursor: pointer;
 }
 
-.login-error {
+.register-error {
   margin: 0;
   color: #ff9cb1;
 }
 
 @media (max-width: 560px) {
-  .login-page {
+  .register-page {
     padding: 14px;
   }
 
-  .login-card {
+  .register-form {
     padding: 16px;
     border-radius: 14px;
   }
